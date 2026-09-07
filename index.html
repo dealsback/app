@@ -2490,8 +2490,8 @@
       <div class="m-handle"></div>
       <h3 style="font-family:'Baloo 2'; font-size:20px; margin-bottom:12px;" id="app-footer-modal-title">Page Title</h3>
       <div id="app-footer-modal-body"
-        style="font-size:13px; line-height:1.6; color:var(--text); white-space:pre-wrap; opacity:0.95;"></div>
-      <button class="btn-sec" onclick="closeModal('app-footer-modal')" style="margin-top:16px;">Close Page</button>
+        style="font-size:13px; line-height:1.6; color:var(--text); opacity:0.95;"></div>
+      <button class="btn-sec" onclick="closeModal('app-footer-modal')" style="margin-top:16px;">Yes, Accept All</button>
     </div>
   </div></button>
   </div>
@@ -5139,12 +5139,34 @@
       `).join(' &nbsp;|&nbsp; ');
     }
 
+    function formatFooterTextToHTML(str) {
+      if (!str) return '';
+      if (/<[a-z][\s\S]*>/i.test(str)) {
+        return str;
+      }
+      return str
+        .replace(/^### (.*$)/gim, '<h3 style="margin:12px 0 6px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:16px;">$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2 style="margin:14px 0 8px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:18px;">$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1 style="margin:16px 0 10px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:20px;">$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\*(.*?)\*/g, '<i>$1</i>')
+        .replace(/\n/g, '<br>');
+    }
+
     function openFooterPageModal(pageId) {
       const pages = window.APP_FOOTER_PAGES || [];
       const page = pages.find(p => p.id === pageId);
       if (!page) return;
       document.getElementById('app-footer-modal-title').textContent = page.title;
-      document.getElementById('app-footer-modal-body').textContent = page.content;
+      const bodyEl = document.getElementById('app-footer-modal-body');
+      if (bodyEl) {
+        const rawContent = page.content || '';
+        if (/<[a-z][\s\S]*>/i.test(rawContent)) {
+          bodyEl.innerHTML = rawContent;
+        } else {
+          bodyEl.innerHTML = formatFooterTextToHTML(rawContent);
+        }
+      }
       openModal('app-footer-modal');
     }
 
