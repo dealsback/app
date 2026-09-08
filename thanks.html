@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DealsBack - Thank You!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      background-color: #f8fafc;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #1e293b;
+    }
+    .card {
+      max-width: 450px;
+      width: 90%;
+      background: #ffffff;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+    .icon {
+      font-size: 40px;
+      margin-bottom: 15px;
+	  font-weight: 700;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      color: #17bb35;
+    }
+    p {
+      font-size: 15px;
+      color: #64748b;
+      margin: 0 0 25px 0;
+      line-height: 1.6;
+	  font-weight: 500;
+    }
+    .redirect-box {
+      font-size: 14px;
+      color: #475569;
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+    }
+    .countdown-number {
+      color: #2563eb;
+      font-weight: 700;
+    }
+    .home-link {
+      display: block;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .home-link:hover {
+      text-decoration: underline;
+    }
+	.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 35px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+	}
+  </style>
+</head>
+<body>
+
+  <div class="card">
+
+    <div class="icon">  <span class="material-symbols-outlined">shopping_bag_speed</span> DealsBack</div>
+    <h1>Thank You!</h1>
+    <p>Your message has been sent successfully. We will get back to you as soon as possible.</p>
+    
+    <div class="redirect-box">
+      Redirecting to home page in <span id="countdown" class="countdown-number">5</span> seconds...
+    </div>
+
+    <a href="/" class="home-link">Click here if you aren't redirected</a>
+  </div>
+
+  <script>
+    // Configuration: Countdown time in seconds and Target URL
+    let timeLeft = 5;
+    const redirectUrl = "/"; 
+
+    const countdownElement = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+      timeLeft--;
+      countdownElement.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        window.location.href = redirectUrl;
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
