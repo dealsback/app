@@ -662,7 +662,6 @@
       object-fit: cover;
       border-radius: 13px;
       opacity: 0;
-      transition: opacity .4s;
       z-index: 1;
     }
 
@@ -993,12 +992,12 @@
 
     .lazy-loaded {
       opacity: 1 !important;
-      transition: opacity 0.35s ease-in-out;
+      transition: opacity 0.1s ease-in-out;
     }
 
     .img-lazy-fade {
       opacity: 0;
-      transition: opacity 0.35s ease-in-out;
+      transition: opacity 0.0s ease-in-out;
     }
 
 
@@ -2489,8 +2488,7 @@
       </button>
       <div class="m-handle"></div>
       <h3 style="font-family:'Baloo 2'; font-size:20px; margin-bottom:12px;" id="app-footer-modal-title">Page Title</h3>
-      <div id="app-footer-modal-body"
-        style="font-size:13px; line-height:1.6; color:var(--text); opacity:0.95;"></div>
+      <div id="app-footer-modal-body" style="font-size:13px; line-height:1.6; color:var(--text); opacity:0.95;"></div>
       <button class="btn-sec" onclick="closeModal('app-footer-modal')" style="margin-top:16px;">Yes, Accept All</button>
     </div>
   </div></button>
@@ -2896,9 +2894,9 @@
       if (sec.dataset.renderedHtml !== newHtml) {
         sec.dataset.renderedHtml = newHtml;
         sec.innerHTML = newHtml;
-        setupLazy();
       }
 
+      setupLazy();
       if (window.renderBanners) window.renderBanners();
     }
 
@@ -2911,7 +2909,7 @@
         const isExp = ST.expanded['recents'], shown = isExp ? sites : sites.slice(0, recentsLimit), more = sites.length > recentsLimit;
         recSec.style.display = 'block';
         const newRecentsHtml = `
-            <h3 style="font-family:'Baloo 2';font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:18px;">history</span> Recently Visited</h3>
+            <h3 style="font-family:'Baloo 2';font-size:18px;margin:10px 0px 10px;display:flex;align-items:center;gap:6px;"><span class="material-symbols-outlined" style="font-size:18px;">history</span> Recently Visited</h3>
             <div class="site-grid">${shown.map(s => card(s)).join('')}</div>
             ${more && !isExp ? `<button class="vm-btn" onclick="expSec('recents', true)">View More ▼</button>` : ''}
             ${more && isExp ? `<button class="vm-btn" onclick="expSec('recents', false)">Show Less ▲</button>` : ''}
@@ -2919,6 +2917,7 @@
         if (recSec.dataset.renderedHtml !== newRecentsHtml) {
           recSec.dataset.renderedHtml = newRecentsHtml;
           recSec.innerHTML = newRecentsHtml;
+          setupLazy();
         }
       } else {
         recSec.style.display = 'none';
@@ -2935,7 +2934,7 @@
       let sites = ST.favs.map(id => SITES.find(s => s.id === id)).filter(Boolean);
       if (q) sites = sites.filter(s => isSiteMatch(s, q));
       let favsHtml = `
-        <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0px 15px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin:10px 0px 10px;">
           <h3 style="font-family:'Baloo 2'; display:flex; align-items:center; gap:6px; margin:0;">
             <span class="material-symbols-outlined mat-fill" style="color:#EF4444;">favorite</span> My Favourites
           </h3>
@@ -5148,6 +5147,7 @@
         .replace(/^### (.*$)/gim, '<h3 style="margin:12px 0 6px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:16px;">$1</h3>')
         .replace(/^## (.*$)/gim, '<h2 style="margin:14px 0 8px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:18px;">$1</h2>')
         .replace(/^# (.*$)/gim, '<h1 style="margin:16px 0 10px; font-family:\'Baloo 2\'; color:var(--saffron); font-size:20px;">$1</h1>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
         .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
         .replace(/\*(.*?)\*/g, '<i>$1</i>')
         .replace(/\n/g, '<br>');
