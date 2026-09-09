@@ -32,39 +32,46 @@
       } catch (e) { }
     })();
   </script>
-  <title>DealsBack – Shop, Share & Earn</title>
-  <meta name="title" content="DealsBack – Shop, Share & Earn">
-  <meta name="description" content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
-
-  <link rel="icon" type="image/svg+xml" href="./shoping_bag.png">
-
-  <!-- Essential Meta Tags for Social Media & WhatsApp -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://dealsback.in/" />
-  <meta property="og:title" content="DealsBack – Shop, Share & Earn" />
-  <meta property="og:description"
-    content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money." />
-  <meta property="og:image" content="https://dealsback.in/thumb.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-
-  <!-- Twitter / X -->
-  <meta property="twitter:image" content="https://dealsback.in/thumb.png" />
-
-  <!-- Optional but recommended for older systems -->
-  <meta itemprop="image" content="https://dealsback.in/thumb.png" />
-
   <link
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap"
     rel="stylesheet" />
   <!-- Google Material Symbols -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0"
     rel="stylesheet" />
+  
+  <title id="meta-tag-title">DealsBack – Shop, Share & Earn</title>
+  <meta name="title" id="meta-tag-name-title" content="DealsBack – Shop, Share & Earn">
+  <meta name="description" id="meta-tag-desc" content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money.">
+
+	<!-- The Responsive Master File (Scales perfectly to any screen size) -->
+	<link rel="icon" type="image/svg+xml" id="meta-favicon-svg" href="./shoping_bag.svg">
+
+	<!-- Fallback for older browsers that don't support SVG -->
+	<link rel="icon" type="image/png" id="meta-favicon-png" href="https://dealsback.in/favicon.png" sizes="32x32">
+
+	<!-- For Apple / iOS Home Screens (Responsive mobile icon) -->
+	<link rel="apple-touch-icon" id="meta-apple-touch-icon" href="./shoping_bag.png">
+
+  <!-- Essential Meta Tags for Social Media & WhatsApp -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" id="meta-og-url" content="https://dealsback.in/" />
+  <meta property="og:title" id="meta-og-title" content="DealsBack – Shop, Share & Earn" />
+  <meta property="og:description" id="meta-og-desc" content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money." />
+  <meta property="og:image" id="meta-og-image" content="https://dealsback.in/thumb.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter / X -->
+  <meta property="twitter:image" id="meta-twitter-image" content="https://dealsback.in/thumb.png" />
+
+  <!-- Optional but recommended for older systems -->
+  <meta itemprop="image" id="meta-itemprop-image" content="https://dealsback.in/thumb.png" />
+
   <!-- QR Code Library for Easily Scannable QR -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <style>
@@ -2766,6 +2773,21 @@
           ticking = true;
         }
       }, { passive: true });
+
+      let _lastWinWidth = window.innerWidth;
+      let _lastCatLimit = getResponsiveCatLimit();
+      window.addEventListener('resize', () => {
+        const newWinWidth = window.innerWidth;
+        const newLimit = getResponsiveCatLimit();
+        if (newLimit !== _lastCatLimit || Math.abs(newWinWidth - _lastWinWidth) > 20) {
+          _lastWinWidth = newWinWidth;
+          _lastCatLimit = newLimit;
+          const sec = document.getElementById('secs');
+          if (sec) sec.dataset.renderedHtml = '';
+          if (window.debouncedRender) window.debouncedRender();
+          else render();
+        }
+      }, { passive: true });
     });
 
     /* Theme Options Config */
@@ -2833,12 +2855,26 @@
       return nmMatch || offerMatch || catKeyMatch || catLblMatch;
     }
 
+    function getResponsiveCatLimit() {
+      const winW = window.innerWidth;
+      const cfg = window.REMOTE_CONFIG || {};
+      let limit;
+      if (winW >= 800) {
+        limit = Number(cfg.categoryCardLimitDesktop) || Number(cfg.categoryCardLimit) || 12;
+      } else if (winW >= 520) {
+        limit = Number(cfg.categoryCardLimitTablet) || Number(cfg.categoryCardLimit) || 8;
+      } else {
+        limit = Number(cfg.categoryCardLimitMobile) || Number(cfg.categoryCardLimit) || 6;
+      }
+      return Math.max(1, limit);
+    }
+
     function render(cat, q) {
       cat = cat || ST.cat; q = q || ''; ST.cat = cat;
       const sec = document.getElementById('secs');
       if (!sec) return;
 
-      renderRecents();
+      renderRecents(q);
       renderFavStrip();
 
       if (cat === 'favourites') {
@@ -2858,7 +2894,8 @@
         ? sortedActiveCats
         : [cat];
 
-      const catLimit = Number(window.REMOTE_CONFIG?.categoryCardLimit) || 6;
+      const isHomePage = (cat === 'all' && !q);
+      const catLimit = isHomePage ? getResponsiveCatLimit() : SITES.length;
       const sortMode = window.REMOTE_CONFIG?.storeSortMode || 'visits';
 
       const secHtmlParts = [];
@@ -2871,7 +2908,11 @@
         if (sortMode === 'visits') {
           sites.sort((a, b) => ((b.visits || 0) - (a.visits || 0)));
         }
-        const isExp = ST.expanded[c], shown = isExp ? sites : sites.slice(0, catLimit), more = sites.length > catLimit;
+
+        const isExp = isHomePage ? ST.expanded[c] : true;
+        const shown = isHomePage ? (isExp ? sites : sites.slice(0, catLimit)) : sites;
+        const more = isHomePage && (sites.length > catLimit);
+
         secHtmlParts.push(`
           <div class="cat-sec" id="sec-${c}">
             <div class="cat-banner-top" id="cat-banner-top-${c}"></div>
@@ -2897,13 +2938,13 @@
       }
 
       setupLazy();
-      if (window.renderBanners) window.renderBanners();
+      if (window.renderBanners) window.renderBanners(q);
     }
 
-    function renderRecents() {
+    function renderRecents(q) {
       const recSec = document.getElementById('recent-sec');
       if (!recSec) return;
-      if (ST.recents.length > 0 && ST.cat === 'all') {
+      if (!q && ST.recents.length > 0 && ST.cat === 'all') {
         const recentsLimit = Number(window.REMOTE_CONFIG?.recentsCardLimit) || 2;
         const sites = ST.recents.map(id => SITES.find(s => s.id === id)).filter(Boolean);
         const isExp = ST.expanded['recents'], shown = isExp ? sites : sites.slice(0, recentsLimit), more = sites.length > recentsLimit;
@@ -3134,6 +3175,8 @@
         allBtn.classList.add('on');
         allBtn.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
       }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       if (document.startViewTransition) {
         document.startViewTransition(() => render('all', q));
@@ -4292,7 +4335,16 @@
       referralUrlBase: "",
       shareMsgDash: "",
       shareMsgStore: "",
-      shareMsgCopy: ""
+      shareMsgCopy: "",
+      gridColsMobile: 2,
+      gridColsTablet: 4,
+      gridColsDesktop: 6,
+      categoryCardLimit: 6,
+      categoryCardLimitMobile: 6,
+      categoryCardLimitTablet: 8,
+      categoryCardLimitDesktop: 12,
+      recentsCardLimit: 2,
+      storeSortMode: "visits"
     };
 
     window.initRemoteFirestoreSync = function () {
@@ -4439,11 +4491,67 @@
     function applyRemoteSettings(s, skipRender = false) {
       if (!s) return;
       const prevLimit = window.REMOTE_CONFIG?.categoryCardLimit;
+      const prevLimitMobile = window.REMOTE_CONFIG?.categoryCardLimitMobile;
+      const prevLimitTablet = window.REMOTE_CONFIG?.categoryCardLimitTablet;
+      const prevLimitDesktop = window.REMOTE_CONFIG?.categoryCardLimitDesktop;
       const prevRecentsLimit = window.REMOTE_CONFIG?.recentsCardLimit;
       const prevSortMode = window.REMOTE_CONFIG?.storeSortMode;
       const prevColsMobile = window.REMOTE_CONFIG?.gridColsMobile;
+      const prevColsTablet = window.REMOTE_CONFIG?.gridColsTablet;
+      const prevColsDesktop = window.REMOTE_CONFIG?.gridColsDesktop;
 
       window.REMOTE_CONFIG = { ...window.REMOTE_CONFIG, ...s };
+
+      // SEO & Social Media Meta Tags Sync
+      const metaTitle = s.metaTitle || s.pageTitle;
+      if (metaTitle) {
+        document.title = metaTitle;
+        const tag1 = document.getElementById('meta-tag-title') || document.querySelector('title');
+        if (tag1) tag1.textContent = metaTitle;
+        const tag2 = document.getElementById('meta-tag-name-title') || document.querySelector('meta[name="title"]');
+        if (tag2) tag2.setAttribute('content', metaTitle);
+        const tag3 = document.getElementById('meta-og-title') || document.querySelector('meta[property="og:title"]');
+        if (tag3) tag3.setAttribute('content', metaTitle);
+      }
+
+      const metaDesc = s.metaDescription || s.metaDesc;
+      if (metaDesc) {
+        const tag1 = document.getElementById('meta-tag-desc') || document.querySelector('meta[name="description"]');
+        if (tag1) tag1.setAttribute('content', metaDesc);
+        const tag2 = document.getElementById('meta-og-desc') || document.querySelector('meta[property="og:description"]');
+        if (tag2) tag2.setAttribute('content', metaDesc);
+      }
+
+      const siteUrl = s.siteUrl || s.ogUrl;
+      if (siteUrl) {
+        const tag = document.getElementById('meta-og-url') || document.querySelector('meta[property="og:url"]');
+        if (tag) tag.setAttribute('content', siteUrl);
+      }
+
+      const ogImage = s.ogImage || s.shareImage;
+      if (ogImage) {
+        const tag1 = document.getElementById('meta-og-image') || document.querySelector('meta[property="og:image"]');
+        if (tag1) tag1.setAttribute('content', ogImage);
+        const tag2 = document.getElementById('meta-twitter-image') || document.querySelector('meta[property="twitter:image"]');
+        if (tag2) tag2.setAttribute('content', ogImage);
+        const tag3 = document.getElementById('meta-itemprop-image') || document.querySelector('meta[itemprop="image"]');
+        if (tag3) tag3.setAttribute('content', ogImage);
+      }
+
+      if (s.faviconSvg) {
+        const tag = document.getElementById('meta-favicon-svg') || document.querySelector('link[rel="icon"][type="image/svg+xml"]');
+        if (tag) tag.setAttribute('href', s.faviconSvg);
+      }
+
+      if (s.faviconPng) {
+        const tag = document.getElementById('meta-favicon-png') || document.querySelector('link[rel="icon"][type="image/png"]');
+        if (tag) tag.setAttribute('href', s.faviconPng);
+      }
+
+      if (s.appleTouchIcon) {
+        const tag = document.getElementById('meta-apple-touch-icon') || document.querySelector('link[rel="apple-touch-icon"]');
+        if (tag) tag.setAttribute('href', s.appleTouchIcon);
+      }
 
       if (s.noWifiIcon || s.no_wifi_icon) {
         const iconEl = document.getElementById('no-wifi-icon-el');
@@ -4553,13 +4661,21 @@
 
       const hasLayoutSettingChanged = (
         prevLimit !== s.categoryCardLimit ||
+        prevLimitMobile !== s.categoryCardLimitMobile ||
+        prevLimitTablet !== s.categoryCardLimitTablet ||
+        prevLimitDesktop !== s.categoryCardLimitDesktop ||
         prevRecentsLimit !== s.recentsCardLimit ||
         prevSortMode !== s.storeSortMode ||
-        prevColsMobile !== s.gridColsMobile
+        prevColsMobile !== s.gridColsMobile ||
+        prevColsTablet !== s.gridColsTablet ||
+        prevColsDesktop !== s.gridColsDesktop
       );
 
       if (!skipRender && hasLayoutSettingChanged) {
+        const sec = document.getElementById('secs');
+        if (sec) sec.dataset.renderedHtml = '';
         if (window.debouncedRender) window.debouncedRender();
+        else render();
       }
     }
 
@@ -4877,7 +4993,7 @@
       }
     };
 
-    window.renderBanners = function () {
+    window.renderBanners = function (searchQ) {
       const bData = ST.banners;
       const aboveContainer = document.getElementById('banner-container-above');
       const belowContainer = document.getElementById('banner-container-below');
@@ -4892,6 +5008,9 @@
         return;
       }
 
+      const qVal = (searchQ !== undefined && searchQ !== null) ? String(searchQ).trim() : (document.getElementById('si')?.value.trim() || '');
+      const isSearchActive = !!qVal;
+
       const intervalSec = bData.autoSwipeSeconds || 3;
       const allItems = Array.isArray(bData.items) ? [...bData.items] : [];
       allItems.sort((a, b) => (a.order || 0) - (b.order || 0));
@@ -4902,11 +5021,27 @@
       const globalTopBanners = allItems.filter(b => (!b.cat || b.cat === 'all') && (!b.position || b.position === 'top' || b.position === 'above'));
       const globalBottomBanners = allItems.filter(b => (!b.cat || b.cat === 'all') && (b.position === 'bottom' || b.position === 'below'));
 
-      if (aboveContainer) {
-        renderSingleBannerSlider('banner-container-above', globalTopBanners, intervalSec);
-      }
-      if (belowContainer) {
-        renderSingleBannerSlider('banner-container-below', globalBottomBanners, intervalSec);
+      if (isSearchActive) {
+        // Search is active: Move top global banner below search results/categories
+        if (aboveContainer) {
+          if (window.BANNER_SLIDERS['banner-container-above']?.timer) {
+            clearInterval(window.BANNER_SLIDERS['banner-container-above'].timer);
+          }
+          aboveContainer.innerHTML = '';
+          aboveContainer.style.display = 'none';
+          aboveContainer.dataset.renderedHtml = '';
+        }
+        const combinedBottom = [...globalBottomBanners, ...globalTopBanners];
+        if (belowContainer) {
+          renderSingleBannerSlider('banner-container-below', combinedBottom, intervalSec);
+        }
+      } else {
+        if (aboveContainer) {
+          renderSingleBannerSlider('banner-container-above', globalTopBanners, intervalSec);
+        }
+        if (belowContainer) {
+          renderSingleBannerSlider('banner-container-below', globalBottomBanners, intervalSec);
+        }
       }
 
       // 2. Per-Category Column Banners (cat-banner-top-{c} & cat-banner-bottom-{c})
@@ -4923,8 +5058,23 @@
         // Bottom banners for this specific category
         const catBottomBanners = allItems.filter(b => b.cat === catId && (b.position === 'bottom' || b.position === 'below'));
 
-        renderSingleBannerSlider(topContainerId, catTopBanners, intervalSec);
-        renderSingleBannerSlider(bottomContainerId, catBottomBanners, intervalSec);
+        if (isSearchActive) {
+          // Search active: Move category top banners below the category section
+          const topEl = document.getElementById(topContainerId);
+          if (topEl) {
+            if (window.BANNER_SLIDERS[topContainerId]?.timer) {
+              clearInterval(window.BANNER_SLIDERS[topContainerId].timer);
+            }
+            topEl.innerHTML = '';
+            topEl.style.display = 'none';
+            topEl.dataset.renderedHtml = '';
+          }
+          const combinedCatBottom = [...catBottomBanners, ...catTopBanners];
+          renderSingleBannerSlider(bottomContainerId, combinedCatBottom, intervalSec);
+        } else {
+          renderSingleBannerSlider(topContainerId, catTopBanners, intervalSec);
+          renderSingleBannerSlider(bottomContainerId, catBottomBanners, intervalSec);
+        }
       });
     };
 
@@ -5003,11 +5153,23 @@
         touchEndX: 0
       };
 
+      function startBannerAutoSwipeInterval(cId, itemArr, sec) {
+        const ms = Math.max(1000, (sec || 3) * 1000);
+        return setInterval(() => {
+          const slider = window.BANNER_SLIDERS[cId];
+          if (slider && slider.items && slider.items.length > 1) {
+            const curItem = slider.items[slider.index || 0];
+            if (curItem && curItem.autoSwipe === false) {
+              return;
+            }
+          }
+          window.navigateBannerSlide(cId, itemArr.length, 1);
+        }, ms);
+      }
+
       if (items.length > 1) {
         const ms = Math.max(1000, (intervalSec || 3) * 1000);
-        window.BANNER_SLIDERS[containerId].timer = setInterval(() => {
-          window.navigateBannerSlide(containerId, items.length, 1);
-        }, ms);
+        window.BANNER_SLIDERS[containerId].timer = startBannerAutoSwipeInterval(containerId, items, intervalSec);
 
         const wrap = document.getElementById(sliderId);
         if (wrap) {
@@ -5022,9 +5184,7 @@
               if (Math.abs(diff) > 35) {
                 window.navigateBannerSlide(containerId, items.length, diff < 0 ? 1 : -1);
                 clearInterval(window.BANNER_SLIDERS[containerId].timer);
-                window.BANNER_SLIDERS[containerId].timer = setInterval(() => {
-                  window.navigateBannerSlide(containerId, items.length, 1);
-                }, ms);
+                window.BANNER_SLIDERS[containerId].timer = startBannerAutoSwipeInterval(containerId, items, intervalSec);
               }
             }
           }, { passive: true });
@@ -5043,9 +5203,7 @@
             if (Math.abs(diff) > 35) {
               window.navigateBannerSlide(containerId, items.length, diff < 0 ? 1 : -1);
               clearInterval(window.BANNER_SLIDERS[containerId].timer);
-              window.BANNER_SLIDERS[containerId].timer = setInterval(() => {
-                window.navigateBannerSlide(containerId, items.length, 1);
-              }, ms);
+              window.BANNER_SLIDERS[containerId].timer = startBannerAutoSwipeInterval(containerId, items, intervalSec);
             }
           });
         }
