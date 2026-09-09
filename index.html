@@ -12,15 +12,13 @@
         var c1 = localStorage.getItem('theme_c1');
         var c2 = localStorage.getItem('theme_c2');
         var shadow = localStorage.getItem('theme_shadow');
-        var cachedSet = null;
-        try {
-          cachedSet = JSON.parse(localStorage.getItem('ish_cache_settings') || 'null');
-        } catch (err) {}
-
-        if (!c1 && cachedSet && cachedSet.themeColors) {
-          c1 = cachedSet.themeColors.c1;
-          c2 = cachedSet.themeColors.c2;
-          shadow = cachedSet.themeColors.shadow;
+        if (!c1) {
+          var cachedSet = JSON.parse(localStorage.getItem('ish_cache_settings') || 'null');
+          if (cachedSet && cachedSet.themeColors) {
+            c1 = cachedSet.themeColors.c1;
+            c2 = cachedSet.themeColors.c2;
+            shadow = cachedSet.themeColors.shadow;
+          }
         }
         if (c1 && c2 && shadow) {
           document.documentElement.style.setProperty('--saffron', c1);
@@ -31,62 +29,6 @@
         }
         var t = localStorage.getItem('theme') || 'light';
         document.documentElement.dataset.theme = t;
-
-        if (cachedSet) {
-          var metaTitle = cachedSet.metaTitle || cachedSet.pageTitle || cachedSet.ogTitle || cachedSet.title;
-          if (metaTitle) {
-            document.title = metaTitle;
-            var t1 = document.getElementById('meta-tag-title') || document.querySelector('title');
-            if (t1) t1.textContent = metaTitle;
-            var t2 = document.getElementById('meta-tag-name-title') || document.querySelector('meta[name="title"]');
-            if (t2) t2.setAttribute('content', metaTitle);
-            var t3 = document.getElementById('meta-og-title') || document.querySelector('meta[property="og:title"]');
-            if (t3) t3.setAttribute('content', metaTitle);
-            var t4 = document.getElementById('meta-twitter-title') || document.querySelector('meta[name="twitter:title"]') || document.querySelector('meta[property="twitter:title"]');
-            if (t4) t4.setAttribute('content', metaTitle);
-            var t5 = document.getElementById('meta-itemprop-name') || document.querySelector('meta[itemprop="name"]');
-            if (t5) t5.setAttribute('content', metaTitle);
-          }
-
-          var metaDesc = cachedSet.metaDescription || cachedSet.metaDesc || cachedSet.ogDescription || cachedSet.description;
-          if (metaDesc) {
-            var d1 = document.getElementById('meta-tag-desc') || document.querySelector('meta[name="description"]');
-            if (d1) d1.setAttribute('content', metaDesc);
-            var d2 = document.getElementById('meta-og-desc') || document.querySelector('meta[property="og:description"]');
-            if (d2) d2.setAttribute('content', metaDesc);
-            var d3 = document.getElementById('meta-twitter-desc') || document.querySelector('meta[name="twitter:description"]') || document.querySelector('meta[property="twitter:description"]');
-            if (d3) d3.setAttribute('content', metaDesc);
-            var d4 = document.getElementById('meta-itemprop-desc') || document.querySelector('meta[itemprop="description"]');
-            if (d4) d4.setAttribute('content', metaDesc);
-          }
-
-          var siteUrl = cachedSet.siteUrl || cachedSet.ogUrl || cachedSet.url;
-          if (siteUrl) {
-            var u1 = document.getElementById('meta-og-url') || document.querySelector('meta[property="og:url"]');
-            if (u1) u1.setAttribute('content', siteUrl);
-            var u2 = document.getElementById('meta-twitter-url') || document.querySelector('meta[name="twitter:url"]') || document.querySelector('meta[property="twitter:url"]');
-            if (u2) u2.setAttribute('content', siteUrl);
-            var u3 = document.getElementById('meta-canonical-url') || document.querySelector('link[rel="canonical"]');
-            if (u3) u3.setAttribute('href', siteUrl);
-          }
-
-          var ogImage = cachedSet.ogImage || cachedSet.shareImage || cachedSet.metaImage || cachedSet.image;
-          if (ogImage) {
-            var i1 = document.getElementById('meta-og-image') || document.querySelector('meta[property="og:image"]');
-            if (i1) i1.setAttribute('content', ogImage);
-            var i2 = document.getElementById('meta-og-image-secure') || document.querySelector('meta[property="og:image:secure_url"]');
-            if (i2) i2.setAttribute('content', ogImage);
-            var i3 = document.getElementById('meta-twitter-image') || document.querySelector('meta[name="twitter:image"]') || document.querySelector('meta[property="twitter:image"]');
-            if (i3) i3.setAttribute('content', ogImage);
-            var i4 = document.getElementById('meta-itemprop-image') || document.querySelector('meta[itemprop="image"]');
-            if (i4) i4.setAttribute('content', ogImage);
-          }
-
-          if (cachedSet.brandNm) {
-            var s1 = document.getElementById('meta-og-site-name') || document.querySelector('meta[property="og:site_name"]');
-            if (s1) s1.setAttribute('content', cachedSet.brandNm);
-          }
-        }
       } catch (e) { }
     })();
   </script>
@@ -102,39 +44,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0"
     rel="stylesheet" />
   
-  <title id="meta-tag-title">BazaarGo – Shop, Share & Earn</title>
-  <meta name="title" id="meta-tag-name-title" content="BazaarGo – Shop, Share & Earn">
-  <meta name="description" id="meta-tag-desc" content="BazaarGo - All top Indian stores in one place. Shop, Share, and Earn real money.">
+  <title id="meta-tag-title">DealsBack – Shop, Share & Earn</title>
+  <meta name="title" id="meta-tag-name-title" content="DealsBack – Shop, Share & Earn">
+  <meta name="description" id="meta-tag-desc" content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money.">
 
-  <!-- Canonical URL -->
-  <link rel="canonical" id="meta-canonical-url" href="https://dealsback.in/" />
+	<!-- The Responsive Master File (Scales perfectly to any screen size) -->
+	<link rel="icon" type="image/svg+xml" id="meta-favicon-svg" href="./shoping_bag.svg">
 
-  <!-- Icons -->
-  <link rel="icon" type="image/svg+xml" id="meta-favicon-svg" href="./shoping_bag.svg">
-  <link rel="icon" type="image/png" id="meta-favicon-png" href="https://dealsback.in/favicon.png" sizes="32x32">
-  <link rel="apple-touch-icon" id="meta-apple-touch-icon" href="./shoping_bag.png">
+	<!-- Fallback for older browsers that don't support SVG -->
+	<link rel="icon" type="image/png" id="meta-favicon-png" href="https://dealsback.in/favicon.png" sizes="32x32">
 
-  <!-- Essential Meta Tags for Social Media, Facebook, WhatsApp & LinkedIn -->
-  <meta property="og:type" id="meta-og-type" content="website" />
-  <meta property="og:site_name" id="meta-og-site-name" content="BazaarGo" />
+	<!-- For Apple / iOS Home Screens (Responsive mobile icon) -->
+	<link rel="apple-touch-icon" id="meta-apple-touch-icon" href="./shoping_bag.png">
+
+  <!-- Essential Meta Tags for Social Media & WhatsApp -->
+  <meta property="og:type" content="website" />
   <meta property="og:url" id="meta-og-url" content="https://dealsback.in/" />
-  <meta property="og:title" id="meta-og-title" content="BazaarGo – Shop, Share & Earn" />
-  <meta property="og:description" id="meta-og-desc" content="BazaarGo - All top Indian stores in one place. Shop, Share, and Earn real money." />
+  <meta property="og:title" id="meta-og-title" content="DealsBack – Shop, Share & Earn" />
+  <meta property="og:description" id="meta-og-desc" content="DealsBack - All top Indian stores in one place. Shop, Share, and Earn real money." />
   <meta property="og:image" id="meta-og-image" content="https://dealsback.in/thumb.png" />
-  <meta property="og:image:secure_url" id="meta-og-image-secure" content="https://dealsback.in/thumb.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
   <!-- Twitter / X -->
-  <meta name="twitter:card" id="meta-twitter-card" content="summary_large_image" />
-  <meta name="twitter:url" id="meta-twitter-url" content="https://dealsback.in/" />
-  <meta name="twitter:title" id="meta-twitter-title" content="BazaarGo – Shop, Share & Earn" />
-  <meta name="twitter:description" id="meta-twitter-desc" content="BazaarGo - All top Indian stores in one place. Shop, Share, and Earn real money." />
-  <meta name="twitter:image" id="meta-twitter-image" content="https://dealsback.in/thumb.png" />
+  <meta property="twitter:image" id="meta-twitter-image" content="https://dealsback.in/thumb.png" />
 
-  <!-- Schema.org / Google -->
-  <meta itemprop="name" id="meta-itemprop-name" content="BazaarGo – Shop, Share & Earn" />
-  <meta itemprop="description" id="meta-itemprop-desc" content="BazaarGo - All top Indian stores in one place. Shop, Share, and Earn real money." />
+  <!-- Optional but recommended for older systems -->
   <meta itemprop="image" id="meta-itemprop-image" content="https://dealsback.in/thumb.png" />
 
   <!-- QR Code Library for Easily Scannable QR -->
@@ -2201,7 +2136,7 @@
     <div class="ft-pages-links" id="ft-pages-links"
       style="margin: 10px 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 12px; opacity: 0.85;">
     </div>
-    <div class="ft-copy">© 2026 BazaarGo. All rights reserved. Build with ❤️ in India 🇮🇳
+    <div class="ft-copy">© 2026 DealsBack. All rights reserved. Build with ❤️ in India 🇮🇳
       <br>All logos belong to their respective owners.
     </div>
   </footer>
@@ -2225,7 +2160,7 @@
             <span class="material-symbols-outlined" style="font-size:22px; color:#fff;">person</span>
           </div>
           <div style="flex:1; overflow:hidden;">
-            <div class="m-nm" id="mn-nm">BazaarGo</div>
+            <div class="m-nm" id="mn-nm">DealsBack</div>
             <div style="font-size:12px; opacity:0.85; line-height:1.35; margin-top:2px;" id="mn-sb">Guest · Register to
               earn</div>
           </div>
@@ -2336,7 +2271,7 @@
       <div class="m-handle"></div>
       <div id="rs1">
         <h3 style="font-family:'Baloo 2'; display:flex; align-items:center; gap:6px;"><span
-            class="material-symbols-outlined" style="color:var(--saffron);">rocket_launch</span> Join BazaarGo</h3>
+            class="material-symbols-outlined" style="color:var(--saffron);">rocket_launch</span> Join DealsBack</h3>
         <p style="font-size:12px;color:var(--muted);margin-bottom:15px;">Indian mobile number required for earning</p>
         <div class="ig">
           <label>Full Name</label>
@@ -4385,11 +4320,6 @@
 
     /* ════════ REMOTE FIRESTORE ENGINE & LIVE SYNC ════════ */
     window.REMOTE_CONFIG = {
-      brandNm: "BazaarGo",
-      metaTitle: "BazaarGo – Shop, Share & Earn",
-      metaDescription: "BazaarGo - All top Indian stores in one place. Shop, Share, and Earn real money.",
-      siteUrl: "https://dealsback.in/",
-      ogImage: "https://dealsback.in/thumb.png",
       welcomePts: 150,
       sharePts: 50,
       maxDailyShares: 30,
@@ -4573,7 +4503,7 @@
       window.REMOTE_CONFIG = { ...window.REMOTE_CONFIG, ...s };
 
       // SEO & Social Media Meta Tags Sync
-      const metaTitle = s.metaTitle || s.pageTitle || s.ogTitle || s.title;
+      const metaTitle = s.metaTitle || s.pageTitle;
       if (metaTitle) {
         document.title = metaTitle;
         const tag1 = document.getElementById('meta-tag-title') || document.querySelector('title');
@@ -4582,44 +4512,30 @@
         if (tag2) tag2.setAttribute('content', metaTitle);
         const tag3 = document.getElementById('meta-og-title') || document.querySelector('meta[property="og:title"]');
         if (tag3) tag3.setAttribute('content', metaTitle);
-        const tag4 = document.getElementById('meta-twitter-title') || document.querySelector('meta[name="twitter:title"]') || document.querySelector('meta[property="twitter:title"]');
-        if (tag4) tag4.setAttribute('content', metaTitle);
-        const tag5 = document.getElementById('meta-itemprop-name') || document.querySelector('meta[itemprop="name"]');
-        if (tag5) tag5.setAttribute('content', metaTitle);
       }
 
-      const metaDesc = s.metaDescription || s.metaDesc || s.ogDescription || s.description;
+      const metaDesc = s.metaDescription || s.metaDesc;
       if (metaDesc) {
         const tag1 = document.getElementById('meta-tag-desc') || document.querySelector('meta[name="description"]');
         if (tag1) tag1.setAttribute('content', metaDesc);
         const tag2 = document.getElementById('meta-og-desc') || document.querySelector('meta[property="og:description"]');
         if (tag2) tag2.setAttribute('content', metaDesc);
-        const tag3 = document.getElementById('meta-twitter-desc') || document.querySelector('meta[name="twitter:description"]') || document.querySelector('meta[property="twitter:description"]');
-        if (tag3) tag3.setAttribute('content', metaDesc);
-        const tag4 = document.getElementById('meta-itemprop-desc') || document.querySelector('meta[itemprop="description"]');
-        if (tag4) tag4.setAttribute('content', metaDesc);
       }
 
-      const siteUrl = s.siteUrl || s.ogUrl || s.url;
+      const siteUrl = s.siteUrl || s.ogUrl;
       if (siteUrl) {
-        const tag1 = document.getElementById('meta-og-url') || document.querySelector('meta[property="og:url"]');
-        if (tag1) tag1.setAttribute('content', siteUrl);
-        const tag2 = document.getElementById('meta-twitter-url') || document.querySelector('meta[name="twitter:url"]') || document.querySelector('meta[property="twitter:url"]');
-        if (tag2) tag2.setAttribute('content', siteUrl);
-        const tag3 = document.getElementById('meta-canonical-url') || document.querySelector('link[rel="canonical"]');
-        if (tag3) tag3.setAttribute('href', siteUrl);
+        const tag = document.getElementById('meta-og-url') || document.querySelector('meta[property="og:url"]');
+        if (tag) tag.setAttribute('content', siteUrl);
       }
 
-      const ogImage = s.ogImage || s.shareImage || s.metaImage || s.image;
+      const ogImage = s.ogImage || s.shareImage;
       if (ogImage) {
         const tag1 = document.getElementById('meta-og-image') || document.querySelector('meta[property="og:image"]');
         if (tag1) tag1.setAttribute('content', ogImage);
-        const tag2 = document.getElementById('meta-og-image-secure') || document.querySelector('meta[property="og:image:secure_url"]');
+        const tag2 = document.getElementById('meta-twitter-image') || document.querySelector('meta[property="twitter:image"]');
         if (tag2) tag2.setAttribute('content', ogImage);
-        const tag3 = document.getElementById('meta-twitter-image') || document.querySelector('meta[name="twitter:image"]') || document.querySelector('meta[property="twitter:image"]');
+        const tag3 = document.getElementById('meta-itemprop-image') || document.querySelector('meta[itemprop="image"]');
         if (tag3) tag3.setAttribute('content', ogImage);
-        const tag4 = document.getElementById('meta-itemprop-image') || document.querySelector('meta[itemprop="image"]');
-        if (tag4) tag4.setAttribute('content', ogImage);
       }
 
       if (s.faviconSvg) {
@@ -4652,8 +4568,6 @@
           const mnNm = document.getElementById('mn-nm');
           if (mnNm) mnNm.textContent = s.brandNm;
         }
-        const siteNameTag = document.getElementById('meta-og-site-name') || document.querySelector('meta[property="og:site_name"]');
-        if (siteNameTag) siteNameTag.setAttribute('content', s.brandNm);
       }
       if (s.brandSub) {
         const el = document.querySelector('.brand-sub');
@@ -5752,8 +5666,7 @@
     async function triggerNativeDeviceShare(title, text, shareUrl, shareItemKey, titleName) {
       if (!navigator.share) return false;
 
-      const defaultTitle = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.metaTitle) || (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || document.title || 'BazaarGo – Shop, Share & Earn';
-      const shareData = { title: title || defaultTitle };
+      const shareData = { title: title || 'DealsBack – Shop, Share & Earn' };
       if (text) shareData.text = text;
 
       if (shareUrl && (shareUrl.startsWith('http://') || shareUrl.startsWith('https://'))) {
@@ -5882,7 +5795,7 @@
 
     function getShareUrl(refCode) {
       const ref = refCode || (ST.user ? ST.user.refCode : 'GUEST');
-      const baseUrl = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.referralUrlBase) || (window.REMOTE_CONFIG && window.REMOTE_CONFIG.siteUrl) || `${location.origin}${location.pathname}`;
+      const baseUrl = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.referralUrlBase) || `${location.origin}${location.pathname}`;
       return `${baseUrl}?ref=${ref}`;
     }
 
@@ -5919,9 +5832,8 @@
       let msg = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.shareMsgDash) || `🛍️ Shop 80+ Indian stores in one place! Share & Earn real money.\n📲 Join & Earn: {LINK}`;
       msg = msg.replace(/\{LINK\}/g, shareUrl);
 
-      const shareTitle = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.metaTitle) || (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || document.title || 'BazaarGo – Shop, Share & Earn';
       const shared = await triggerNativeDeviceShare(
-        shareTitle,
+        'DealsBack – Shop, Share & Earn',
         msg,
         shareUrl,
         'dash_ref_link',
@@ -5939,9 +5851,8 @@
       if (!s) return;
       const ref = ST.user ? ST.user.refCode : 'GUEST';
       const shareUrl = getShareUrl(ref);
-      const brandName = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || 'BazaarGo';
 
-      let msg = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.shareMsgStore) || `🛍️ Shop at {STORE} via ${brandName}!\n🔥 {OFFER}\n👉 Visit: {URL}\n📲 Join & Earn: {LINK}`;
+      let msg = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.shareMsgStore) || `🛍️ Shop at {STORE} via DealsBack!\n🔥 {OFFER}\n👉 Visit: {URL}\n📲 Join & Earn: {LINK}`;
       msg = msg.replace(/\{STORE\}/g, s.nm)
         .replace(/\{OFFER\}/g, s.offer)
         .replace(/\{URL\}/g, s.url)
@@ -5984,11 +5895,9 @@
         processUniqueShare('channel_sms', 'SMS Share');
         closeModal('share-modal');
       } else if (p === 'native_system' || p === 'native' || p === 'more' || p === 'more_toggle') {
-        const shareTitle = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.metaTitle) || (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || document.title || 'BazaarGo – Shop, Share & Earn';
         const shared = await triggerNativeDeviceShare(
-          shareTitle,
+          'DealsBack – Shop, Share & Earn',
           msg,
-          shareUrl,
           'channel_native',
           'More Apps'
         );
@@ -6121,7 +6030,7 @@
         if (earnIc) earnIc.textContent = "account_balance_wallet";
       } else {
         ptsBtn.textContent = "0";
-        document.getElementById('mn-nm').textContent = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || "BazaarGo";
+        document.getElementById('mn-nm').textContent = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.brandNm) || "DealsBack";
         document.getElementById('mn-sb').innerHTML = "Guest · Register to earn";
 
         mnPts.style.display = 'none';
