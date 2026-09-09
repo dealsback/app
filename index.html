@@ -1513,6 +1513,39 @@
       }
     }
 
+    /* CATEGORY SWIPE ANIMATIONS FOR STORES */
+    .cat-swipe-left {
+      animation: catSwipeLeft 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    .cat-swipe-right {
+      animation: catSwipeRight 0.28s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes catSwipeLeft {
+      0% {
+        opacity: 0.45;
+        transform: translate3d(45px, 0, 0);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
+    @keyframes catSwipeRight {
+      0% {
+        opacity: 0.45;
+        transform: translate3d(-45px, 0, 0);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+      }
+    }
+
     .vm-btn {
       width: 100%;
       background: var(--card);
@@ -3113,7 +3146,7 @@
       }
     }
 
-    function filterCat(c, btn) {
+    function filterCat(c, btn, direction) {
       ST.cat = c;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('on'));
       const targetBtn = btn || document.querySelector(`.cat-btn[data-c="${c}"]`);
@@ -3122,6 +3155,18 @@
         targetBtn.style.scrollMarginLeft = '15px';
         targetBtn.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
       }
+
+      const sec = document.getElementById('secs');
+      if (sec && direction) {
+        sec.classList.remove('cat-swipe-left', 'cat-swipe-right');
+        void sec.offsetWidth;
+        if (direction === 'left') {
+          sec.classList.add('cat-swipe-left');
+        } else if (direction === 'right') {
+          sec.classList.add('cat-swipe-right');
+        }
+      }
+
       render(c);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -6209,12 +6254,14 @@
       let touchEndY = 0;
       let activeModal = null;
       let isModalDrag = false;
+      let touchTarget = null;
 
       document.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
         touchEndX = touchStartX;
         touchEndY = touchStartY;
+        touchTarget = e.target;
 
         const openModalOv = document.querySelector('.modal-ov.open');
         if (openModalOv) {
@@ -6265,11 +6312,32 @@
           return;
         }
 
-        if (!sideMenuOpen && !document.querySelector('.modal-ov.open')) {
-          if (deltaX > 100 && Math.abs(deltaY) < 80 && touchStartX < window.innerWidth * 0.4) {
-            if (ST.cat !== 'all') {
-              filterCat('all');
-              showToast("Swiped back to All categories");
+        // Category swipe navigation (Mobile & Tablet only: window.innerWidth <= 1024)
+        if (!sideMenuOpen && !document.querySelector('.modal-ov.open') && window.innerWidth <= 1024) {
+          // Ignore touches on inputs, textareas, selects, and horizontal scroll wrappers
+          const isInteractive = touchTarget && touchTarget.closest('input, textarea, select, .banner-slider-wrap, .cat-nav, .earn-cards, .ac-list');
+
+          if (!isInteractive && Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2 && Math.abs(deltaY) < 80) {
+            const catNavBtns = Array.from(document.querySelectorAll('.cat-nav .cat-btn'));
+            const catKeys = catNavBtns.map(b => b.getAttribute('data-c')).filter(Boolean);
+            const availableCats = catKeys.length ? catKeys : ['all', 'retail', 'grocery', 'favourites', 'beauty', 'health', 'travel', 'finance', 'fashion', 'electronics', 'others'];
+
+            const currCat = ST.cat || 'all';
+            let currIdx = availableCats.indexOf(currCat);
+            if (currIdx === -1) currIdx = 0;
+
+            if (deltaX < -50) {
+              // Swiped Left -> Move to Next Category
+              if (currIdx < availableCats.length - 1) {
+                const nextCat = availableCats[currIdx + 1];
+                filterCat(nextCat, null, 'left');
+              }
+            } else if (deltaX > 50) {
+              // Swiped Right -> Move to Previous Category
+              if (currIdx > 0) {
+                const prevCat = availableCats[currIdx - 1];
+                filterCat(prevCat, null, 'right');
+              }
             }
           }
         }
