@@ -518,6 +518,12 @@
       padding: 0px 12px 12px 12px;
     }
 
+    #secs {
+      overflow-x: hidden;
+      width: 100%;
+      position: relative;
+    }
+
     :root {
       --grid-cols-mobile: 2;
       --grid-cols-tablet: 4;
@@ -1525,7 +1531,7 @@
     @keyframes catSwipeLeft {
       0% {
         opacity: 0.45;
-        transform: translate3d(45px, 0, 0);
+        transform: translate3d(20px, 0, 0);
       }
 
       100% {
@@ -1537,7 +1543,7 @@
     @keyframes catSwipeRight {
       0% {
         opacity: 0.45;
-        transform: translate3d(-45px, 0, 0);
+        transform: translate3d(-20px, 0, 0);
       }
 
       100% {
@@ -3165,10 +3171,18 @@
         } else if (direction === 'right') {
           sec.classList.add('cat-swipe-right');
         }
+        if (sec._swipeTimer) clearTimeout(sec._swipeTimer);
+        sec._swipeTimer = setTimeout(() => {
+          sec.classList.remove('cat-swipe-left', 'cat-swipe-right');
+        }, 300);
       }
 
       render(c);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+      if (window.scrollX !== 0) {
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollLeft = 0;
+      }
     }
 
     /* ════════ SEARCH LOGIC ════════ */
@@ -6290,6 +6304,12 @@
       document.addEventListener('touchend', () => {
         const deltaX = touchEndX - touchStartX;
         const deltaY = touchEndY - touchStartY;
+
+        if (window.scrollX !== 0) {
+          window.scrollTo({ left: 0 });
+          document.documentElement.scrollLeft = 0;
+          document.body.scrollLeft = 0;
+        }
 
         if (activeModal) {
           activeModal.style.transition = '';
