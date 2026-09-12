@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deal Activated | Redirecting...</title>
+  <meta name="robots" content="nofollow">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+  <style>
+    :root {
+      --bg-clr: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --card2-bg: #F1F5F9;
+      --text-clr: #0F172A;
+      --muted-clr: #64748B;
+      --border-clr: #E2E8F0;
+    }
+
+    [data-theme="dark"] {
+      --bg-clr: #0F172A;
+      --card-bg: #1E293B;
+      --card2-bg: #0F172A;
+      --text-clr: #F8FAFC;
+      --muted-clr: #94A3B8;
+      --border-clr: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg-clr);
+      color: var(--text-clr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-clr);
+      border-radius: 28px;
+      padding: 36px 28px;
+      max-width: 460px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      overflow: hidden;
+      animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.92) translateY(10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .glow {
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      color: #10B981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 30px;
+      padding: 7px 20px;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 0.3px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
+    }
+
+    .msg {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-clr);
+      margin-bottom: 24px;
+      line-height: 1.45;
+    }
+
+    .msg span {
+      color: #0284C7;
+      font-weight: 900;
+    }
+
+    .anim-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: #f1f5f900;
+      border: 1px solid var(--border-clr);
+      border-radius: 20px;
+      padding: 22px 16px;
+      margin-bottom: 26px;
+    }
+
+    .logo-box {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-clr);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      padding: 6px;
+    }
+
+    .logo-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .logo-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted-clr);
+      margin-top: 8px;
+      max-width: 85px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .gif-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 110px;
+    }
+
+    .gif-wrap img {
+      width: 100%;
+      max-height: 52px;
+      object-fit: contain;
+    }
+
+    .progress-sec {
+      margin-bottom: 24px;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted-clr);
+      margin-bottom: 10px;
+    }
+
+    .text-meta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted-clr);
+      margin-bottom: 10px;
+    }
+
+    .timer-num {
+      color: #10B981;
+      font-weight: 900;
+      font-size: 14px;
+    }
+
+    .track {
+      width: 100%;
+      height: 10px;
+      background: var(--card2-bg);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-clr);
+    }
+
+    .bar {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #10B981, #0284C7);
+      transition: width 1s linear;
+      border-radius: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px 18px;
+      background: linear-gradient(135deg, #0284C7, #0369A1);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 24px rgba(2, 132, 199, 0.35);
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(2, 132, 199, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="modal-box">
+    <div class="glow"></div>
+    <div class="badge">
+      <span class="material-symbols-outlined" style="font-size:20px;">verified</span>
+      <span>Deal Activated</span>
+    </div>
+    <div class="msg">
+      Please wait while we are redirecting you to <span id="store-name-text">Store</span>
+    </div>
+    <div class="anim-container">
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="logo-box">
+          <img id="brand-logo-img" src="https://dealsback.in/dealsback.jpg"
+            onerror="this.onerror=null;this.src='https://dealsback.in/dealsback.jpg';" alt="App">
+        </div>
+        <div class="logo-lbl" id="brand-name-lbl">BazaarGo</div>
+      </div>
+      <div class="gif-wrap">
+        <img src="https://asset20.ckassets.com/wp/wp-content/themes/CashKaro_WP/img/intermediary_animation.gif"
+          alt="Redirecting...">
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;">
+        <div class="logo-box">
+          <img id="store-logo-img" src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png"
+            onerror="this.onerror=null;this.src='https://cdn-icons-png.flaticon.com/512/3081/3081559.png';" alt="Store">
+        </div>
+        <div class="logo-lbl" id="store-name-lbl">Store</div>
+      </div>
+    </div>
+    <div class="progress-sec">
+      <div class="progress-meta">
+        <span class="timer-num">Processing...</span>
+      </div>
+      <div class="track">
+        <div class="bar" id="p-bar"></div>
+      </div>
+    </div>
+    <div class="text-meta">
+      If you are not automatically re-directed! &nbsp;<span id="store-name-text2">Store</span>
+    </div>
+    <a href="#" class="btn" id="m-btn">
+      <span>Please click here</span>
+      <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+    </a>
+  </div>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const targetUrl = params.get('url') || '#';
+      const storeName = params.get('name') || 'Store';
+      const storeLogo = params.get('logo') || '';
+      const brandNm = params.get('brandNm') || 'BazaarGo';
+      const brandLogo = params.get('brandLogo') || 'https://dealsback.in/dealsback.jpg';
+      const theme = params.get('theme') || 'light';
+
+      document.documentElement.setAttribute('data-theme', theme);
+      document.title = `Deal Activated | Redirecting to ${storeName}...`;
+
+      document.getElementById('store-name-text').textContent = storeName;
+      document.getElementById('store-name-text2').textContent = storeName;
+      document.getElementById('store-name-lbl').textContent = storeName;
+      document.getElementById('brand-name-lbl').textContent = brandNm;
+
+      const brandImgEl = document.getElementById('brand-logo-img');
+      if (brandImgEl && brandLogo) brandImgEl.src = brandLogo;
+
+      const storeImgEl = document.getElementById('store-logo-img');
+      if (storeImgEl) {
+        let finalStoreLogo = storeLogo;
+        if (!finalStoreLogo && targetUrl && targetUrl !== '#') {
+          try {
+            const domainHost = new URL(targetUrl).hostname;
+            if (domainHost) finalStoreLogo = `https://www.google.com/s2/favicons?domain=${domainHost}&sz=128`;
+          } catch (e) { }
+        }
+        if (finalStoreLogo) storeImgEl.src = finalStoreLogo;
+      }
+
+      const manualBtn = document.getElementById('m-btn');
+      if (manualBtn) manualBtn.href = targetUrl;
+
+      let remaining = 4;
+      const barEl = document.getElementById('p-bar');
+
+      const interval = setInterval(function () {
+        remaining--;
+        if (barEl) barEl.style.width = Math.max(0, (remaining / 4 * 100)) + '%';
+        if (remaining <= 0) {
+          clearInterval(interval);
+          if (targetUrl && targetUrl !== '#') {
+            window.location.href = targetUrl;
+          }
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+
+</html>
