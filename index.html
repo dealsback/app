@@ -137,6 +137,46 @@
       box-sizing: border-box;
     }
 
+    @keyframes fadeInBackdrop {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideDownBanner {
+      from { opacity: 0; transform: translate(-50%, -20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    /* IN-APP BROWSER WARNING BACKDROP & BANNER */
+    .in-app-browser-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9998;
+      animation: fadeInBackdrop 0.3s ease;
+    }
+
+    .in-app-browser-banner-modal {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 32px);
+      max-width: 580px;
+      z-index: 9999;
+      background: linear-gradient(135deg, #1E293B, #0F172A);
+      border: 1px solid var(--saffron);
+      border-radius: 16px;
+      padding: 16px 20px;
+      color: #fff;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      animation: slideDownBanner 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
     html {
       scroll-behavior: smooth;
     }
@@ -2086,8 +2126,8 @@
 
   <main>
     <!-- IN-APP BROWSER BREAKOUT BANNER (Instagram / Telegram / Facebook WebView Warning) -->
-    <div id="in-app-browser-warning-banner"
-      style="display:none; background:linear-gradient(135deg, #1E293B, #0F172A); border:1px solid var(--saffron); border-radius:14px; padding:12px 16px; margin:12px 0 16px 0; color:#fff; box-shadow:0 6px 20px rgba(0,0,0,0.25);">
+    <div id="in-app-browser-backdrop" class="in-app-browser-backdrop"></div>
+    <div id="in-app-browser-warning-banner" class="in-app-browser-banner-modal">
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
         <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:240px;">
           <div
@@ -2110,7 +2150,7 @@
             style="background:linear-gradient(135deg, #38BDF8, #0284C7); color:#fff; border:none; padding:8px 14px; border-radius:8px; font-size:12px; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 12px rgba(56,189,248,0.3);">
             <span class="material-symbols-outlined" style="font-size:16px;">language</span> Open in Chrome browser
           </button>
-          <button type="button" onclick="document.getElementById('in-app-browser-warning-banner').style.display='none';"
+          <button type="button" onclick="dismissInAppBrowserWarning()"
             style="background:transparent; border:none; color:#94A3B8; font-size:18px; cursor:pointer; padding:4px; display:grid; place-items:center;"
             title="Dismiss warning">
             <span class="material-symbols-outlined">close</span>
@@ -5134,15 +5174,24 @@
       }
     };
 
+    window.dismissInAppBrowserWarning = function () {
+      const banner = document.getElementById('in-app-browser-warning-banner');
+      const backdrop = document.getElementById('in-app-browser-backdrop');
+      if (banner) banner.style.display = 'none';
+      if (backdrop) backdrop.style.display = 'none';
+    };
+
     window.evaluateAndHandleInAppBrowser = function (settingsData) {
       const s = settingsData || JSON.parse(localStorage.getItem('ish_cache_settings') || '{}');
       const lr = s.linkRouting || {};
 
       const isFeatureEnabled = lr.preventInAppBrowser !== false && s.preventInAppBrowser !== false;
       const bannerEl = document.getElementById('in-app-browser-warning-banner');
+      const backdropEl = document.getElementById('in-app-browser-backdrop');
 
       if (!isFeatureEnabled) {
         if (bannerEl) bannerEl.style.display = 'none';
+        if (backdropEl) backdropEl.style.display = 'none';
         return;
       }
 
@@ -5163,8 +5212,12 @@
           const labelEl = document.getElementById('in-app-browser-name-label');
           if (labelEl) labelEl.textContent = appName;
         }
+        if (backdropEl) {
+          backdropEl.style.display = 'block';
+        }
       } else {
         if (bannerEl) bannerEl.style.display = 'none';
+        if (backdropEl) backdropEl.style.display = 'none';
       }
     };
 
