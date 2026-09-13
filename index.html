@@ -44,7 +44,7 @@
   <!-- Google Material Symbols -->
 	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0"
     rel="stylesheet" />
-	<link rel="manifest" href="/manifest.json">
+	<link rel="manifest" href="manifest.json">
 
   <title>DealsBack – Shop, Share & Earn Real Money</title>
   <meta name="title" content="DealsBack – Shop, Share & Earn Real Money">
@@ -177,6 +177,126 @@
       color: #fff;
       box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
       animation: slideDownBanner 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* PWA AUTOMATIC INSTALL BANNER */
+    @keyframes slideUpPWABanner {
+      from { opacity: 0; transform: translate(-50%, 100%); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+
+    .pwa-install-banner {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 24px);
+      max-width: 480px;
+      z-index: 9995;
+      background: var(--card);
+      border: 2px solid var(--saffron);
+      border-radius: 20px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      animation: slideUpPWABanner 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .pwa-install-banner.show {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pwa-install-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pwa-install-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      object-fit: cover;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .pwa-install-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pwa-install-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pwa-install-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
+    .pwa-install-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      color: #0284C7;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .pwa-install-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .pwa-btn-install {
+      flex: 1;
+      background: linear-gradient(135deg, var(--saffron), var(--s2));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      box-shadow: 0 4px 14px var(--shadow-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pwa-btn-install:hover {
+      transform: translateY(-1px);
+    }
+
+    .pwa-btn-dismiss {
+      background: var(--card2);
+      color: var(--muted);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .pwa-btn-dismiss:hover {
+      background: var(--border);
     }
 
     html {
@@ -2364,6 +2484,10 @@
 
       <div id="custom-side-menu-container"></div>
 
+      <div class="m-item" id="menu-install-pwa-item" onclick="closeMenu(); triggerPWAInstall();">
+        <span class="material-symbols-outlined" style="color:#0284C7;">install_mobile</span> Install App (+500 Pts)
+      </div>
+
       <div class="m-item" style="color:#EF4444; background: antiquewhite;" id="menu-logout-item" onclick="logout()">
         <span class="material-symbols-outlined">logout</span> Logout
       </div>
@@ -2394,6 +2518,30 @@
           </a>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- PWA AUTOMATIC INSTALL BANNER -->
+  <div class="pwa-install-banner" id="pwa-install-banner">
+    <div class="pwa-install-header">
+      <img src="dealsback.png" alt="DealsBack" class="pwa-install-icon">
+      <div class="pwa-install-text">
+        <div class="pwa-install-title">
+          <span>DealsBack App</span>
+          <span class="pwa-install-badge">⚡ Instant Access</span>
+        </div>
+        <div class="pwa-install-desc">Install app to shop top Indian stores & earn real money faster!</div>
+      </div>
+      <button class="pwa-btn-dismiss" onclick="dismissPWABanner()" title="Close" style="padding:4px 8px; border-radius:50%;">
+        <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+      </button>
+    </div>
+    <div class="pwa-install-actions">
+      <button class="pwa-btn-install" onclick="triggerPWAInstall()">
+        <span class="material-symbols-outlined" style="font-size:18px;">install_mobile</span>
+        <span>Install App (+500 Pts)</span>
+      </button>
+      <button class="pwa-btn-dismiss" onclick="dismissPWABanner()">Not Now</button>
     </div>
   </div>
 
@@ -6543,6 +6691,79 @@
         }
       }, { passive: true });
     }
+
+    // PWA AUTOMATIC INSTALLATION ENGINE
+    let deferredPWAInstallPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPWAInstallPrompt = e;
+      checkAndShowPWABanner();
+    });
+
+    function checkAndShowPWABanner() {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+      if (isStandalone) return;
+      if (sessionStorage.getItem('pwa_banner_dismissed') === 'true') return;
+
+      setTimeout(() => {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.classList.add('show');
+      }, 800);
+    }
+
+    function dismissPWABanner() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) banner.classList.remove('show');
+      sessionStorage.setItem('pwa_banner_dismissed', 'true');
+    }
+
+    async function triggerPWAInstall() {
+      dismissPWABanner();
+      if (deferredPWAInstallPrompt) {
+        try {
+          deferredPWAInstallPrompt.prompt();
+          const { outcome } = await deferredPWAInstallPrompt.userChoice;
+          if (outcome === 'accepted') {
+            showToast('🎉 DealsBack App installed successfully!');
+            if (typeof claimAppInstall === 'function') {
+              claimAppInstall();
+            }
+          }
+          deferredPWAInstallPrompt = null;
+        } catch (err) {
+          console.error('PWA install prompt error:', err);
+        }
+      } else {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        if (isIOS) {
+          alert("To install DealsBack:\n1. Tap the Share button in Safari\n2. Select 'Add to Home Screen'");
+        } else {
+          alert("To install DealsBack:\nTap your browser menu (⋮ or ...) and select 'Install app' or 'Add to Home screen'.");
+        }
+      }
+    }
+
+    window.addEventListener('appinstalled', () => {
+      deferredPWAInstallPrompt = null;
+      dismissPWABanner();
+      showToast('🎉 DealsBack App installed!');
+      if (typeof claimAppInstall === 'function') {
+        claimAppInstall();
+      }
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('Service worker registration:', err);
+        });
+      });
+    }
+
+    window.addEventListener('load', () => {
+      checkAndShowPWABanner();
+    });
   </script>
 </body>
 
