@@ -37,12 +37,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
   <link rel="dns-prefetch" href="https://play-lh.googleusercontent.com">
-  <link
+	<link
     href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap"
     rel="stylesheet" />
   <!-- Google Material Symbols -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0"
+	<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0..1,0"
     rel="stylesheet" />
+	<link rel="manifest" href="/manifest.json">
 
   <title>DealsBack – Shop, Share & Earn Real Money</title>
   <meta name="title" content="DealsBack – Shop, Share & Earn Real Money">
@@ -54,10 +55,10 @@
   <!-- Canonical Tag -->
   <link rel="canonical" href="https://dealsback.in/" />
 
-  <!-- Favicon Icons (JPG Only - No SVG) -->
-  <link rel="icon" type="image/jpeg" href="https://dealsback.in/favicon.jpg">
-  <link rel="shortcut icon" type="image/jpeg" href="https://dealsback.in/favicon.jpg">
-  <link rel="apple-touch-icon" href="https://dealsback.in/dealsback.jpg">
+  <!-- Favicon Icons (PNG Only - No SVG) -->
+  <link rel="icon" type="image/png" href="https://dealsback.in/favicon.png">
+  <link rel="shortcut icon" type="image/png" href="https://dealsback.in/favicon.png">
+  <link rel="apple-touch-icon" href="https://dealsback.in/dealsback.png">
 
   <!-- Essential Meta Tags for Social Media (Telegram, WhatsApp, Facebook, LinkedIn, iMessage) -->
   <meta property="og:type" content="website" />
@@ -4356,8 +4357,8 @@
 
       // Brand settings
       const settings = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.settings) || {};
-      const brandNm = settings.brandNm || 'BazaarGo';
-      const brandLogo = settings.brandLogo || settings.brandIconUrl || 'https://dealsback.in/dealsback.jpg';
+      const brandNm = settings.brandNm || 'DealsBack';
+      const brandLogo = settings.brandLogo || settings.brandIconUrl || 'https://dealsback.in/dealsback.png';
       const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
       // Build target redirect page URL with query parameters

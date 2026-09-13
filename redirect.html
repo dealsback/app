@@ -6,6 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deal Activated | Redirecting...</title>
   <meta name="robots" content="nofollow">
+  <link rel="icon" type="image/png" href="https://dealsback.in/favicon.png">
+  <link rel="shortcut icon" type="image/png" href="https://dealsback.in/favicon.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap">
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
@@ -86,7 +88,7 @@
       border-radius: 30px;
       padding: 10px 26px;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 16px;
       letter-spacing: 0.3px;
       margin-bottom: 20px;
       box-shadow: 0 4px 14px rgba(16, 185, 129, 0.15);
@@ -115,11 +117,12 @@
       padding: 22px 16px;
       margin-bottom: 26px;
 	  gap: 10px;
+	  box-shadow: 0 4px 14px rgb(172 167 178 / 15%);
     }
 
     .logo-box {
-      width: 64px;
-      height: 64px;
+      width: 80px;
+      height: 80px;
       border-radius: 18px;
       background: var(--card-bg);
       border: 1px solid var(--border-clr);
@@ -177,8 +180,6 @@
     }
 
     .text-meta {
-      display: flex;
-      flex-direction: column;
       font-size: 13px;
       font-weight: 700;
       color: var(--muted-clr);
@@ -201,7 +202,7 @@
     }
 
     .bar {
-      width: 100%;
+      width: 0%;
       height: 100%;
       background: linear-gradient(90deg, #10B981, #0284C7);
       transition: width 1s linear;
@@ -215,8 +216,8 @@
       color: #FFFFFF;
       border: none;
       border-radius: 16px;
-      font-weight: 800;
-      font-size: 13.5px;
+      font-weight: 600;
+      font-size: 15px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
@@ -254,10 +255,10 @@
           <img id="brand-logo-img" src="https://dealsback.in/dealsback.jpg"
             onerror="this.onerror=null;this.src='https://dealsback.in/dealsback.jpg';" alt="App">
         </div>
-        <div class="logo-lbl" id="brand-name-lbl">BazaarGo</div>
+        <div class="logo-lbl" id="brand-name-lbl">DealsBack</div>
       </div>
       <div class="gif-wrap">
-        <img src="https://asset20.ckassets.com/wp/wp-content/themes/CashKaro_WP/img/intermediary_animation.gif"
+        <img src="https://dealsback.in/intermediary_animation.gif"
           alt="Redirecting...">
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;">
@@ -270,7 +271,7 @@
     </div>
     <div class="progress-sec">
       <div class="progress-meta">
-        <span class="timer-num">Processing...</span>
+        <span class="timer-num">Redirecting...</span><span class="material-symbols-outlined" style="font-size:18px;">bubble</span>
       </div>
       <div class="track">
         <div class="bar" id="p-bar"></div>
@@ -281,7 +282,7 @@
     </div>
     <a href="#" class="btn" id="m-btn">
       <span>Please click here</span>
-      <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+      <span class="material-symbols-outlined" style="font-size:18px;">bubble</span>
     </a>
   </div>
 
@@ -291,7 +292,7 @@
       const targetUrl = params.get('url') || '#';
       const storeName = params.get('name') || 'Store';
       const storeLogo = params.get('logo') || '';
-      const brandNm = params.get('brandNm') || 'BazaarGo';
+      const brandNm = params.get('brandNm') || 'DealsBack';
       const brandLogo = params.get('brandLogo') || 'https://dealsback.in/dealsback.jpg';
       const theme = params.get('theme') || 'light';
 
@@ -321,19 +322,25 @@
       const manualBtn = document.getElementById('m-btn');
       if (manualBtn) manualBtn.href = targetUrl;
 
-      let remaining = 4;
-      const barEl = document.getElementById('p-bar');
+      let remaining = 4; 
+		const barEl = document.getElementById('p-bar'); 
 
-      const interval = setInterval(function () {
-        remaining--;
-        if (barEl) barEl.style.width = Math.max(0, (remaining / 4 * 100)) + '%';
-        if (remaining <= 0) {
-          clearInterval(interval);
-          if (targetUrl && targetUrl !== '#') {
-            window.location.href = targetUrl;
-          }
-        }
-      }, 1000);
+		const interval = setInterval(function () { 
+			remaining--; 
+			
+			if (barEl) {
+				// Inverted the logic: (4 - remaining) calculates time elapsed
+				const percentComplete = ((4 - remaining) / 3) * 100;
+				barEl.style.width = Math.min(100, percentComplete) + '%'; 
+			}
+			
+			if (remaining <= 0) { 
+				clearInterval(interval); 
+				if (typeof targetUrl !== 'undefined' && targetUrl && targetUrl !== '#') { 
+					window.location.href = targetUrl; 
+				} 
+			} 
+		}, 1000); 
     })();
   </script>
 </body>

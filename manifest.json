@@ -1,0 +1,29 @@
+json{
+  "name": "Shop, Share, and Earn",
+  "short_name": "DealsBack",
+  "description": "All top Indian stores in one place. Shop, Share, and Earn real money.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/dealsback.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/dealsback.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/dealsback.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
