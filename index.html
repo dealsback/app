@@ -24,8 +24,6 @@
           document.documentElement.style.setProperty('--saffron', c1);
           document.documentElement.style.setProperty('--s2', c2);
           document.documentElement.style.setProperty('--shadow-color', shadow);
-          var metaTheme = document.getElementById('meta-theme-color');
-          if (metaTheme) metaTheme.setAttribute('content', c1);
         }
         var t = localStorage.getItem('theme') || 'light';
         document.documentElement.dataset.theme = t;
@@ -3122,7 +3120,6 @@
       document.documentElement.style.setProperty('--saffron', c1);
       document.documentElement.style.setProperty('--s2', c2);
       document.documentElement.style.setProperty('--shadow-color', shadow);
-      document.querySelector('meta[name="theme-color"]').setAttribute('content', c1);
       LS.setItem('theme_c1', c1);
       LS.setItem('theme_c2', c2);
       LS.setItem('theme_shadow', shadow);
@@ -3141,8 +3138,6 @@
         document.documentElement.style.setProperty('--saffron', c1);
         document.documentElement.style.setProperty('--s2', c2);
         document.documentElement.style.setProperty('--shadow-color', shadow);
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) metaTheme.setAttribute('content', c1);
       } else {
         const cachedSet = JSON.parse(LS.getItem('ish_cache_settings') || 'null');
         if (cachedSet && cachedSet.themeColors && cachedSet.themeColors.c1) {
@@ -4959,8 +4954,6 @@
           document.documentElement.style.setProperty('--saffron', s.themeColors.c1);
           document.documentElement.style.setProperty('--s2', s.themeColors.c2);
           document.documentElement.style.setProperty('--shadow-color', s.themeColors.shadow);
-          const metaTheme = document.querySelector('meta[name="theme-color"]');
-          if (metaTheme) metaTheme.setAttribute('content', s.themeColors.c1);
         }
       }
 
