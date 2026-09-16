@@ -4558,6 +4558,44 @@
       window.open(redirectPageUrl, '_blank');
     };
 
+    function isUrlExcluded(url, excludedUrls) {
+      if (!url || typeof url !== 'string' || !Array.isArray(excludedUrls) || !excludedUrls.length) return false;
+      const uFull = url.trim().toLowerCase();
+      if (!uFull) return false;
+
+      const uNoProto = uFull.replace(/^https?:\/\//i, '');
+      const uNoWww = uNoProto.replace(/^www\./i, '');
+      const uHost = uNoWww.split('/')[0];
+
+      return excludedUrls.some(entry => {
+        if (!entry || typeof entry !== 'string') return false;
+        const eFull = entry.trim().toLowerCase();
+        if (!eFull) return false;
+
+        const eNoProto = eFull.replace(/^https?:\/\//i, '');
+        const eNoWww = eNoProto.replace(/^www\./i, '');
+
+        // 1. Exact or prefix match (full URL or normalized)
+        if (uFull.startsWith(eFull) || uNoProto.startsWith(eNoProto) || uNoWww.startsWith(eNoWww)) {
+          return true;
+        }
+
+        // 2. Domain / Hostname match (only if entry has no path or root path)
+        const eParts = eNoWww.split('/');
+        const eHost = eParts[0];
+        const hasPath = eParts.length > 1 && eParts.slice(1).join('').length > 0;
+
+        if (!hasPath && eHost) {
+          if (uHost === eHost || uHost.endsWith('.' + eHost)) {
+            return true;
+          }
+        }
+
+        // 3. Substring fallback match
+        return uFull.includes(eFull) || uNoWww.includes(eNoWww);
+      });
+    }
+
     window.handleAppUrlLaunch = function (url, scopeKey, e, storeMeta) {
       if (e && e.preventDefault) e.preventDefault();
       if (e && e.stopPropagation) e.stopPropagation();
@@ -4568,27 +4606,23 @@
       const cfg = (window.REMOTE_CONFIG && window.REMOTE_CONFIG.linkRouting) || {};
       const masterEnabled = cfg.masterEnabled !== false;
 
-      // Check exclusion list
+      // Check exclusion list with robust URL matcher
       const excludedUrls = Array.isArray(cfg.excludedUrls) ? cfg.excludedUrls : [];
-      const isExcluded = excludedUrls.some(entry => {
-        if (!entry) return false;
-        const cleanEntry = entry.trim().toLowerCase();
-        const cleanUrl = url.toLowerCase();
-        if (cleanUrl.startsWith(cleanEntry)) return true;
-        try {
-          const entryHost = cleanEntry.replace(/^https?:\/\//, '').split('/')[0];
-          const urlHost = new URL(url).hostname.toLowerCase();
-          if (entryHost && urlHost.includes(entryHost)) return true;
-        } catch (err) { }
-        return cleanUrl.includes(cleanEntry);
-      });
+      const isExcluded = isUrlExcluded(url, excludedUrls);
+
+      // If URL is explicitly excluded by Individual Exclusion URLs:
+      // Instantly bypass 5-second redirect screen AND link routing rules, opening directly in browser!
+      if (isExcluded) {
+        window.open(url, '_blank');
+        return;
+      }
 
       // Intermediary 5-Sec Redirect Screen logic
       const redirectScreenEnabled = cfg.redirectScreenEnabled !== false;
       const redirectScopes = cfg.redirectScopes || {};
       const isScopeRedirectEnabled = redirectScopes[scopeKey] !== false;
 
-      const shouldShowIntermediaryScreen = redirectScreenEnabled && isScopeRedirectEnabled && !isExcluded;
+      const shouldShowIntermediaryScreen = redirectScreenEnabled && isScopeRedirectEnabled;
 
       if (shouldShowIntermediaryScreen) {
         showIntermediaryRedirectTab(url, storeMeta);
@@ -4614,11 +4648,6 @@
         } else if (typeof scopeConfig === 'boolean') {
           isInternalScopeEnabled = globalInternal && scopeConfig;
           isExternalScopeEnabled = globalExternal && scopeConfig;
-        }
-
-        if (isExcluded) {
-          window.open(url, '_blank');
-          return;
         }
 
         if (isInternalScopeEnabled) {
@@ -6739,16 +6768,128 @@
 
     // PWA AUTOMATIC INSTALLATION ENGINE
     let deferredPWAInstallPrompt = null;
+    let pwaBroadcastChannel = null;
+
+    if ('BroadcastChannel' in window) {
+      try {
+        pwaBroadcastChannel = new BroadcastChannel('dealsback_pwa_install_channel');
+        pwaBroadcastChannel.onmessage = (event) => {
+          if (event && event.data && event.data.type === 'PWA_INSTALL_STATE_CHANGED') {
+            if (event.data.installed) {
+              const banner = document.getElementById('pwa-install-banner');
+              if (banner) banner.classList.remove('show');
+            } else {
+              sessionStorage.removeItem('pwa_banner_dismissed');
+              checkAndShowPWABanner();
+            }
+          }
+        };
+      } catch (e) {
+        console.warn("BroadcastChannel error:", e);
+      }
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'pwa_is_installed') {
+        if (e.newValue === 'true') {
+          const banner = document.getElementById('pwa-install-banner');
+          if (banner) banner.classList.remove('show');
+        } else {
+          sessionStorage.removeItem('pwa_banner_dismissed');
+          checkAndShowPWABanner();
+        }
+      }
+    });
+
+    function isPWAStandalone() {
+      return window.matchMedia('(display-mode: standalone)').matches ||
+             window.matchMedia('(display-mode: minimal-ui)').matches ||
+             window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+             window.navigator.standalone === true ||
+             (document.referrer && document.referrer.startsWith('android-app://'));
+    }
+
+    function setPWAInstalledState(isInstalled) {
+      const prevState = localStorage.getItem('pwa_is_installed');
+      const newState = isInstalled ? 'true' : 'false';
+
+      if (prevState !== newState) {
+        localStorage.setItem('pwa_is_installed', newState);
+
+        if (!isInstalled) {
+          sessionStorage.removeItem('pwa_banner_dismissed');
+        }
+
+        try {
+          if (pwaBroadcastChannel) {
+            pwaBroadcastChannel.postMessage({ type: 'PWA_INSTALL_STATE_CHANGED', installed: isInstalled });
+          }
+        } catch (e) {}
+      }
+
+      if (isInstalled) {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.classList.remove('show');
+      }
+    }
+
+    async function checkPWAInstallationStatus() {
+      // 1. Check standalone display mode
+      if (isPWAStandalone()) {
+        setPWAInstalledState(true);
+        return true;
+      }
+
+      // 2. Check getInstalledRelatedApps API if supported by browser
+      if ('getInstalledRelatedApps' in navigator) {
+        try {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          if (relatedApps && relatedApps.length > 0) {
+            setPWAInstalledState(true);
+            return true;
+          } else if (!isPWAStandalone()) {
+            // App is not installed according to native API
+            if (localStorage.getItem('pwa_is_installed') === 'true') {
+              // User uninstalled the app!
+              setPWAInstalledState(false);
+            }
+          }
+        } catch (err) {
+          console.warn("getInstalledRelatedApps check:", err);
+        }
+      }
+
+      // 3. Check beforeinstallprompt event signal
+      if (deferredPWAInstallPrompt) {
+        // beforeinstallprompt only fires when browser knows app is NOT installed
+        if (localStorage.getItem('pwa_is_installed') === 'true') {
+          setPWAInstalledState(false);
+        }
+      }
+
+      return localStorage.getItem('pwa_is_installed') === 'true';
+    }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPWAInstallPrompt = e;
+
+      // When beforeinstallprompt fires, app is installable -> not installed!
+      if (localStorage.getItem('pwa_is_installed') === 'true') {
+        setPWAInstalledState(false);
+      }
+
       checkAndShowPWABanner();
     });
 
-    function checkAndShowPWABanner() {
-      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-      if (isStandalone) return;
+    async function checkAndShowPWABanner() {
+      const isInstalled = await checkPWAInstallationStatus();
+      if (isInstalled) {
+        const banner = document.getElementById('pwa-install-banner');
+        if (banner) banner.classList.remove('show');
+        return;
+      }
+
       if (sessionStorage.getItem('pwa_banner_dismissed') === 'true') return;
 
       const bannerEnabled = (window.REMOTE_CONFIG?.pwaInstallBannerEnabled !== false && window.REMOTE_CONFIG?.pwaBannerEnabled !== false);
@@ -6759,12 +6900,22 @@
         if (cachedSet && (cachedSet.pwaInstallBannerEnabled === false || cachedSet.pwaBannerEnabled === false)) return;
       } catch (e) { }
 
-      setTimeout(() => {
+      setTimeout(async () => {
+        const recheckInstalled = await checkPWAInstallationStatus();
+        if (recheckInstalled) {
+          const banner = document.getElementById('pwa-install-banner');
+          if (banner) banner.classList.remove('show');
+          return;
+        }
+
+        if (sessionStorage.getItem('pwa_banner_dismissed') === 'true') return;
+
         const liveEnabled = (window.REMOTE_CONFIG?.pwaInstallBannerEnabled !== false && window.REMOTE_CONFIG?.pwaBannerEnabled !== false);
         if (!liveEnabled) return;
+
         const banner = document.getElementById('pwa-install-banner');
         if (banner) banner.classList.add('show');
-      }, 5000);
+      }, 3000);
     }
 
     function dismissPWABanner() {
@@ -6780,6 +6931,7 @@
           deferredPWAInstallPrompt.prompt();
           const { outcome } = await deferredPWAInstallPrompt.userChoice;
           if (outcome === 'accepted') {
+            setPWAInstalledState(true);
             showToast('🎉 DealsBack App installed successfully!');
             if (typeof claimAppInstall === 'function') {
               claimAppInstall();
@@ -6801,7 +6953,7 @@
 
     window.addEventListener('appinstalled', () => {
       deferredPWAInstallPrompt = null;
-      dismissPWABanner();
+      setPWAInstalledState(true);
       showToast('🎉 DealsBack App installed!');
       if (typeof claimAppInstall === 'function') {
         claimAppInstall();
@@ -6816,8 +6968,25 @@
       });
     }
 
+    // Re-check installation state whenever new tab opens, tab switches visibility, or window gains focus
     window.addEventListener('load', () => {
-      checkAndShowPWABanner();
+      checkPWAInstallationStatus().then(() => {
+        checkAndShowPWABanner();
+      });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        checkPWAInstallationStatus().then((isInstalled) => {
+          if (!isInstalled) checkAndShowPWABanner();
+        });
+      }
+    });
+
+    window.addEventListener('pageshow', () => {
+      checkPWAInstallationStatus().then((isInstalled) => {
+        if (!isInstalled) checkAndShowPWABanner();
+      });
     });
   </script>
 </body>
