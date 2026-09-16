@@ -6834,48 +6834,11 @@
       } catch (e) {}
     }
 
-    async function checkPWAInstallationStatus() {
-      // 1. If running in standalone window -> installed
-      if (isPWAStandalone()) {
-        setPWAInstalledState(true);
-        return true;
-      }
-
-      // 2. Check native getInstalledRelatedApps API if available
-      if ('getInstalledRelatedApps' in navigator) {
-        try {
-          const relatedApps = await navigator.getInstalledRelatedApps();
-          if (relatedApps && relatedApps.length > 0) {
-            setPWAInstalledState(true);
-            return true;
-          } else {
-            // Native check confirmed app is NOT installed on this device
-            if (localStorage.getItem('pwa_is_installed') === 'true') {
-              // User uninstalled the app!
-              setPWAInstalledState(false);
-              return false;
-            }
-          }
-        } catch (err) {
-          console.warn("getInstalledRelatedApps check:", err);
-        }
-      }
-
-      return isAppInstalled();
-    }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPWAInstallPrompt = e;
-      checkAndShowPWABanner();
-    });
-
-    async function checkAndShowPWABanner() {
-      const isInstalled = await checkPWAInstallationStatus();
+    function checkAndShowPWABanner() {
       const banner = document.getElementById('pwa-install-banner');
       if (!banner) return;
 
-      if (isInstalled) {
+      if (isAppInstalled()) {
         banner.classList.remove('show');
         return;
       }
@@ -6926,6 +6889,12 @@
         }
       }
     }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPWAInstallPrompt = e;
+      checkAndShowPWABanner();
+    });
 
     window.addEventListener('appinstalled', () => {
       deferredPWAInstallPrompt = null;
