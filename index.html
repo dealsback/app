@@ -6776,11 +6776,11 @@
         pwaBroadcastChannel = new BroadcastChannel('dealsback_pwa_install_channel');
         pwaBroadcastChannel.onmessage = (event) => {
           if (event && event.data && event.data.type === 'PWA_INSTALL_STATE_CHANGED') {
+            const banner = document.getElementById('pwa-install-banner');
             if (event.data.installed) {
-              const banner = document.getElementById('pwa-install-banner');
               if (banner) banner.classList.remove('show');
             } else {
-              checkAndShowPWABanner();
+              if (banner) banner.classList.add('show');
             }
           }
         };
@@ -6791,11 +6791,11 @@
 
     window.addEventListener('storage', (e) => {
       if (e.key === 'pwa_is_installed') {
+        const banner = document.getElementById('pwa-install-banner');
         if (e.newValue === 'true') {
-          const banner = document.getElementById('pwa-install-banner');
           if (banner) banner.classList.remove('show');
         } else {
-          checkAndShowPWABanner();
+          if (banner) banner.classList.add('show');
         }
       }
     });
@@ -6806,6 +6806,12 @@
              window.matchMedia('(display-mode: window-controls-overlay)').matches ||
              window.navigator.standalone === true ||
              (document.referrer && document.referrer.startsWith('android-app://'));
+    }
+
+    function isAppInstalled() {
+      if (isPWAStandalone()) return true;
+      if (localStorage.getItem('pwa_is_installed') === 'true') return true;
+      return false;
     }
 
     function setPWAInstalledState(isInstalled) {
@@ -6842,10 +6848,12 @@
           if (relatedApps && relatedApps.length > 0) {
             setPWAInstalledState(true);
             return true;
-          } else if (!isPWAStandalone()) {
-            // getInstalledRelatedApps returned [] -> app is uninstalled!
+          } else {
+            // Native check confirmed app is NOT installed on this device
             if (localStorage.getItem('pwa_is_installed') === 'true') {
+              // User uninstalled the app!
               setPWAInstalledState(false);
+              return false;
             }
           }
         } catch (err) {
@@ -6853,34 +6861,22 @@
         }
       }
 
-      // 3. If beforeinstallprompt fired and app is not running in standalone mode
-      if (deferredPWAInstallPrompt && !isPWAStandalone()) {
-        if (localStorage.getItem('pwa_is_installed') === 'true') {
-          setPWAInstalledState(false);
-        }
-      }
-
-      return localStorage.getItem('pwa_is_installed') === 'true';
+      return isAppInstalled();
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPWAInstallPrompt = e;
-
-      // When browser fires beforeinstallprompt, app is not installed (or uninstalled)
-      if (!isPWAStandalone()) {
-        setPWAInstalledState(false);
-      }
-
       checkAndShowPWABanner();
     });
 
     async function checkAndShowPWABanner() {
       const isInstalled = await checkPWAInstallationStatus();
       const banner = document.getElementById('pwa-install-banner');
+      if (!banner) return;
 
       if (isInstalled) {
-        if (banner) banner.classList.remove('show');
+        banner.classList.remove('show');
         return;
       }
 
@@ -6894,7 +6890,7 @@
         if (cachedSet && (cachedSet.pwaInstallBannerEnabled === false || cachedSet.pwaBannerEnabled === false)) return;
       } catch (e) { }
 
-      if (banner) banner.classList.add('show');
+      banner.classList.add('show');
     }
 
     function dismissPWABanner() {
