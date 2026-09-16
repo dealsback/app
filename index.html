@@ -6779,6 +6779,8 @@
             if (event.data.installed) {
               const banner = document.getElementById('pwa-install-banner');
               if (banner) banner.classList.remove('show');
+            } else {
+              checkAndShowPWABanner();
             }
           }
         };
@@ -6788,9 +6790,13 @@
     }
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'pwa_is_installed' && e.newValue === 'true') {
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.remove('show');
+      if (e.key === 'pwa_is_installed') {
+        if (e.newValue === 'true') {
+          const banner = document.getElementById('pwa-install-banner');
+          if (banner) banner.classList.remove('show');
+        } else {
+          checkAndShowPWABanner();
+        }
       }
     });
 
@@ -6802,45 +6808,78 @@
              (document.referrer && document.referrer.startsWith('android-app://'));
     }
 
-    function isAppInstalled() {
-      if (isPWAStandalone()) return true;
-      if (localStorage.getItem('pwa_is_installed') === 'true') return true;
-      return false;
+    function setPWAInstalledState(isInstalled) {
+      const newState = isInstalled ? 'true' : 'false';
+      localStorage.setItem('pwa_is_installed', newState);
+
+      const banner = document.getElementById('pwa-install-banner');
+
+      if (isInstalled) {
+        if (banner) banner.classList.remove('show');
+      } else {
+        sessionStorage.removeItem('pwa_banner_dismissed');
+        if (banner) banner.classList.add('show');
+      }
+
+      try {
+        if (pwaBroadcastChannel) {
+          pwaBroadcastChannel.postMessage({ type: 'PWA_INSTALL_STATE_CHANGED', installed: isInstalled });
+        }
+      } catch (e) {}
     }
 
-    function setPWAInstalledState(isInstalled) {
-      if (isInstalled) {
-        localStorage.setItem('pwa_is_installed', 'true');
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.remove('show');
-
-        try {
-          if (pwaBroadcastChannel) {
-            pwaBroadcastChannel.postMessage({ type: 'PWA_INSTALL_STATE_CHANGED', installed: true });
-          }
-        } catch (e) {}
-      } else {
-        localStorage.setItem('pwa_is_installed', 'false');
+    async function checkPWAInstallationStatus() {
+      // 1. If running in standalone window -> installed
+      if (isPWAStandalone()) {
+        setPWAInstalledState(true);
+        return true;
       }
+
+      // 2. Check native getInstalledRelatedApps API if available
+      if ('getInstalledRelatedApps' in navigator) {
+        try {
+          const relatedApps = await navigator.getInstalledRelatedApps();
+          if (relatedApps && relatedApps.length > 0) {
+            setPWAInstalledState(true);
+            return true;
+          } else if (!isPWAStandalone()) {
+            // getInstalledRelatedApps returned [] -> app is uninstalled!
+            if (localStorage.getItem('pwa_is_installed') === 'true') {
+              setPWAInstalledState(false);
+            }
+          }
+        } catch (err) {
+          console.warn("getInstalledRelatedApps check:", err);
+        }
+      }
+
+      // 3. If beforeinstallprompt fired and app is not running in standalone mode
+      if (deferredPWAInstallPrompt && !isPWAStandalone()) {
+        if (localStorage.getItem('pwa_is_installed') === 'true') {
+          setPWAInstalledState(false);
+        }
+      }
+
+      return localStorage.getItem('pwa_is_installed') === 'true';
     }
 
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPWAInstallPrompt = e;
 
-      // If app is already marked installed, hide banner immediately
-      if (isAppInstalled()) {
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.remove('show');
-        return;
+      // When browser fires beforeinstallprompt, app is not installed (or uninstalled)
+      if (!isPWAStandalone()) {
+        setPWAInstalledState(false);
       }
 
       checkAndShowPWABanner();
     });
 
-    function checkAndShowPWABanner() {
-      if (isAppInstalled()) {
-        const banner = document.getElementById('pwa-install-banner');
+    async function checkAndShowPWABanner() {
+      const isInstalled = await checkPWAInstallationStatus();
+      const banner = document.getElementById('pwa-install-banner');
+
+      if (isInstalled) {
         if (banner) banner.classList.remove('show');
         return;
       }
@@ -6855,21 +6894,7 @@
         if (cachedSet && (cachedSet.pwaInstallBannerEnabled === false || cachedSet.pwaBannerEnabled === false)) return;
       } catch (e) { }
 
-      setTimeout(() => {
-        if (isAppInstalled()) {
-          const banner = document.getElementById('pwa-install-banner');
-          if (banner) banner.classList.remove('show');
-          return;
-        }
-
-        if (sessionStorage.getItem('pwa_banner_dismissed') === 'true') return;
-
-        const liveEnabled = (window.REMOTE_CONFIG?.pwaInstallBannerEnabled !== false && window.REMOTE_CONFIG?.pwaBannerEnabled !== false);
-        if (!liveEnabled) return;
-
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.add('show');
-      }, 2000);
+      if (banner) banner.classList.add('show');
     }
 
     function dismissPWABanner() {
@@ -6879,13 +6904,12 @@
     }
 
     async function triggerPWAInstall() {
-      dismissPWABanner();
-      setPWAInstalledState(true);
       if (deferredPWAInstallPrompt) {
         try {
           deferredPWAInstallPrompt.prompt();
           const { outcome } = await deferredPWAInstallPrompt.userChoice;
           if (outcome === 'accepted') {
+            setPWAInstalledState(true);
             showToast('🎉 DealsBack App installed successfully!');
             if (typeof claimAppInstall === 'function') {
               claimAppInstall();
@@ -6896,6 +6920,8 @@
           console.error('PWA install prompt error:', err);
         }
       } else {
+        dismissPWABanner();
+        setPWAInstalledState(true);
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         if (isIOS) {
           alert("To install DealsBack:\n1. Tap the Share button in Safari\n2. Select 'Add to Home Screen'");
@@ -6924,32 +6950,17 @@
 
     // Re-check installation state whenever new tab opens, tab switches visibility, or window gains focus
     window.addEventListener('load', () => {
-      if (isAppInstalled()) {
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.remove('show');
-      } else {
-        checkAndShowPWABanner();
-      }
+      checkAndShowPWABanner();
     });
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
-        if (isAppInstalled()) {
-          const banner = document.getElementById('pwa-install-banner');
-          if (banner) banner.classList.remove('show');
-        } else {
-          checkAndShowPWABanner();
-        }
+        checkAndShowPWABanner();
       }
     });
 
     window.addEventListener('pageshow', () => {
-      if (isAppInstalled()) {
-        const banner = document.getElementById('pwa-install-banner');
-        if (banner) banner.classList.remove('show');
-      } else {
-        checkAndShowPWABanner();
-      }
+      checkAndShowPWABanner();
     });
   </script>
 </body>
